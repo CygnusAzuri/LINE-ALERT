@@ -88,10 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
           // Calculate how many people ahead (index of this item among waiting items)
           const userIndexInWaiting = waitingOnly.findIndex(i => i.tokenId === currentTokenId);
           const peopleAhead = userIndexInWaiting >= 0 ? userIndexInWaiting : 0;
-          const waitMins = peopleAhead * 3; // Approx 3 mins per person
+          // Use Member 2's centralized wait-time estimator
+          const estWait = LineAlertQueue.estimateWaitMinutes(peopleAhead);
 
           peopleAheadDisplay.textContent = peopleAhead;
-          estWaitDisplay.textContent = `${waitMins}m`;
+          estWaitDisplay.textContent = estWait;
 
           if (peopleAhead <= 2) {
             queueStatusPill.textContent = "Turn Approaching!";
