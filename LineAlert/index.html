@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINE ALERT - Mobile Queue Management</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="mobile-wrapper">
+    <!-- Header -->
+    <header class="brand-header">
+      <h1 class="brand-title">⚡ LINE ALERT</h1>
+      <p class="brand-tagline">Know when it's actually your turn, without standing there.</p>
+    </header>
+
+    <main class="p-4 flex-grow-1 d-flex flex-direction-column justify-content-between">
+      <div>
+        <!-- Counter Info Card -->
+        <div class="text-center mb-4">
+          <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2 rounded-pill">
+            📍 College Canteen — Counter 1
+          </span>
+          <h2 class="h4 mt-3 fw-bold">Virtual Queue System</h2>
+          <p class="text-muted small">
+            Scan the QR code below or click Join Queue to grab your spot and wait anywhere.
+          </p>
+        </div>
+
+        <!-- QR Code Container -->
+        <div class="qr-preview-box shadow-sm mb-4">
+          <div id="qrcode" class="mb-2"></div>
+          <span class="text-muted small mt-2">Scan with camera to open on phone</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-grid gap-3">
+          <a href="customer.html" class="btn btn-primary btn-action py-3 shadow-sm">
+            <span>📱</span>
+            <span>Join Queue as Customer</span>
+          </a>
+          <a href="admin.html" class="btn btn-outline-dark btn-action py-3">
+            <span>🖥️</span>
+            <span>Counter Operator Dashboard</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Footer / Testing Links -->
+      <div class="mt-4 pt-3 border-top text-center">
+        <a href="test-integration.html" class="text-decoration-none small text-secondary">
+          🛠️ Member 4 Integration & Test Workbench
+        </a>
+        <div class="text-muted" style="font-size: 0.75rem; margin-top: 6px;">
+          Mobile Computing Group Project &bull; LINE ALERT 2026
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- QR Code Generator Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    // Generate QR code pointing to customer.html
+    document.addEventListener('DOMContentLoaded', () => {
+      const qrTargetUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'customer.html';
+      const qrContainer = document.getElementById('qrcode');
+      
+      try {
+        new QRCode(qrContainer, {
+          text: qrTargetUrl,
+          width: 180,
+          height: 180,
+          colorDark: "#0f172a",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch (e) {
+        console.warn("QR code render failed:", e);
+        qrContainer.innerHTML = `<div class="p-3 bg-light rounded text-muted small">QR: ${qrTargetUrl}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

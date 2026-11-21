@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member 4 Integration & Test Workbench | LINE ALERT</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .log-window {
+      background-color: #1e1e24;
+      color: #38ef7d;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      height: 280px;
+      overflow-y: auto;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .test-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      transition: transform 0.2s;
+    }
+    .test-card:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-dark bg-dark px-3 py-2 shadow-sm">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1">
+        ⚡ <strong>LINE ALERT</strong> — Member 4 Integration Workbench
+      </span>
+      <div class="d-flex align-items-center gap-2">
+        <span id="firebaseStatusBadge" class="badge bg-secondary">Checking Firebase...</span>
+        <a href="index.html" class="btn btn-outline-light btn-sm">Home</a>
+        <a href="customer.html" class="btn btn-outline-info btn-sm">Customer View</a>
+        <a href="admin.html" class="btn btn-outline-warning btn-sm">Admin View</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <!-- Header banner -->
+    <div class="alert alert-primary shadow-sm mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div style="font-size: 2.2rem;">🛠️</div>
+        <div>
+          <h5 class="alert-heading mb-1 fw-bold">Member 4 Testing & Integration Center</h5>
+          <p class="mb-0 text-secondary" style="font-size: 0.95rem;">
+            Test Firestore read/write, Web Notifications, Web Audio chimes, and mobile vibration independently without waiting for UI or module completion.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Left Column: Tests & Controls -->
+      <div class="col-lg-6">
+
+        <!-- Card 1: Firebase Connection Test -->
+        <div class="card test-card shadow-sm mb-4">
+          <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+            <span>1. Firebase Connection & Health</span>
+            <span id="connIndicator" class="badge bg-secondary">Unknown</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small">Verify that <code>js/firebase-config.js</code> has valid credentials and can query Firestore.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <button id="btnTestFirebase" class="btn btn-primary btn-sm">Test Firebase Connection</button>
+              <button id="btnInitCounter" class="btn btn-outline-success btn-sm">Initialize CANTEEN01 Counter</button>
+            </div>
+            <div id="firebaseConfigAlert" class="mt-3 small" style="display: none;"></div>
+          </div>
+        </div>
+
+        <!-- Card 2: Notification & Audio Test -->
+        <div class="card test-card shadow-sm mb-4">
+          <div class="card-header bg-white fw-bold">
+            <span>2. Notification, Sound & Vibration Tests</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small">Test browser notification permission, synthesized Web Audio chimes, and mobile vibration.</p>
+            <div class="mb-3">
+              <span class="small fw-semibold">Permission Status: </span>
+              <span id="permBadge" class="badge bg-secondary">Unknown</span>
+            </div>
+            <div class="d-flex gap-2 flex-wrap mb-3">
+              <button id="btnRequestPerm" class="btn btn-info btn-sm text-white">Request Permission</button>
+              <button id="btnTestTurnChime" class="btn btn-warning btn-sm">🎵 Approaching Chime (2-Tone)</button>
+              <button id="btnTestServingChime" class="btn btn-danger btn-sm">🚨 Serving Chime (Urgent)</button>
+              <button id="btnTestVibration" class="btn btn-secondary btn-sm">📳 Test Vibration</button>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button id="btnTriggerApproachNotif" class="btn btn-outline-warning btn-sm">Simulate "2 People Ahead" Alert</button>
+              <button id="btnTriggerServingNotif" class="btn btn-outline-danger btn-sm">Simulate "Your Turn Now" Alert</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Simulated Queue Operations -->
+        <div class="card test-card shadow-sm mb-4">
+          <div class="card-header bg-white fw-bold">
+            <span>3. Simulated Queue Operations</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small">Directly simulate customer joining and counter admin calling next.</p>
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" id="simCustomerName" class="form-control" placeholder="Customer Name (e.g. Sakshi)" value="Sakshi">
+              <button id="btnSimAddCustomer" class="btn btn-success">Add to Queue</button>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button id="btnSimCallNext" class="btn btn-primary btn-sm">Call Next Customer</button>
+              <button id="btnSimCompleteCurrent" class="btn btn-success btn-sm">Mark Current Served</button>
+              <button id="btnSimSkipCurrent" class="btn btn-outline-warning btn-sm">Skip Current</button>
+              <button id="btnSimResetQueue" class="btn btn-outline-danger btn-sm">Reset All Queue Data</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Real-time Live Monitor & Logs -->
+      <div class="col-lg-6">
+
+        <!-- Live Queue Monitor -->
+        <div class="card test-card shadow-sm mb-4">
+          <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+            <span>📊 Live Firestore Queue State (Real-time)</span>
+            <span id="queueCountBadge" class="badge bg-primary">0 Active</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+              <table class="table table-sm table-hover align-middle mb-0" id="liveQueueTable">
+                <thead class="table-light">
+                  <tr>
+                    <th>Token</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Position</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody id="liveQueueBody">
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No active customers in queue.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integration Activity Log -->
+        <div class="card test-card shadow-sm mb-4">
+          <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+            <span>📜 Live Activity & Event Log</span>
+            <button id="btnClearLogs" class="btn btn-outline-secondary btn-sm" style="font-size: 0.75rem;">Clear</button>
+          </div>
+          <div class="card-body p-2">
+            <div class="log-window" id="eventLogs">
+              [System] Member 4 Integration Workbench Ready.<br>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase v10 Compat CDN Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/notification.js"></script>
+
+  <!-- Workbench Logic Script -->
+  <script>
+    const logBox = document.getElementById('eventLogs');
+    function log(msg, type = 'info') {
+      const time = new Date().toLocaleTimeString();
+      let color = '#38ef7d';
+      if (type === 'error') color = '#ff4d4f';
+      if (type === 'warn') color = '#fadb14';
+      if (type === 'system') color = '#40a9ff';
+      logBox.innerHTML += `<span style="color: #888;">[${time}]</span> <span style="color: ${color};">${msg}</span><br>`;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // 1. Initial State Check
+    document.addEventListener('DOMContentLoaded', async () => {
+      updatePermissionBadge();
+      checkConfigStatus();
+      setupRealtimeQueueListener();
+    });
+
+    function updatePermissionBadge() {
+      const badge = document.getElementById('permBadge');
+      const status = window.notifier.getPermissionStatus();
+      badge.textContent = status.toUpperCase();
+      badge.className = 'badge ' + (status === 'granted' ? 'bg-success' : (status === 'denied' ? 'bg-danger' : 'bg-warning'));
+    }
+
+    function checkConfigStatus() {
+      const badge = document.getElementById('firebaseStatusBadge');
+      const indicator = document.getElementById('connIndicator');
+      const alertBox = document.getElementById('firebaseConfigAlert');
+
+      if (!window.LineAlertFirebase.isConfigured) {
+        badge.textContent = 'Demo Mode (Add Keys)';
+        badge.className = 'badge bg-warning text-dark';
+        indicator.textContent = 'Keys Needed';
+        indicator.className = 'badge bg-warning text-dark';
+        alertBox.style.display = 'block';
+        alertBox.className = 'alert alert-warning mt-3 small p-2';
+        alertBox.innerHTML = '⚠️ <strong>Step required:</strong> Open <code>js/firebase-config.js</code> and paste your Firebase project credentials to enable live database synchronization.';
+        log('Firebase config contains placeholder keys. Please paste actual keys in js/firebase-config.js.', 'warn');
+      } else {
+        badge.textContent = 'Firebase Ready';
+        badge.className = 'badge bg-success';
+        indicator.textContent = 'Configured';
+        indicator.className = 'badge bg-success';
+        log('Firebase config loaded with configured keys.', 'info');
+      }
+    }
+
+    // Buttons: Firebase Test
+    document.getElementById('btnTestFirebase').addEventListener('click', async () => {
+      log('Testing connection to Firebase Firestore...', 'system');
+      const res = await window.LineAlertFirebase.checkConnection();
+      if (res.connected) {
+        log('✅ ' + res.message, 'info');
+        window.notifier.showInAppToast('Connected to Firestore successfully!', 'success');
+      } else {
+        log('❌ ' + res.message, 'error');
+        window.notifier.showInAppToast(res.message, 'danger');
+      }
+    });
+
+    // Buttons: Initialize Counter
+    document.getElementById('btnInitCounter').addEventListener('click', async () => {
+      if (!window.LineAlertFirebase.db) {
+        alert('Please configure Firebase in js/firebase-config.js first.');
+        return;
+      }
+      try {
+        log('Initializing CANTEEN01 counter in Firestore...', 'system');
+        await window.LineAlertFirebase.db.collection(window.LineAlertFirebase.COLLECTIONS.COUNTERS)
+          .doc(window.LineAlertFirebase.DEFAULT_COUNTER_ID)
+          .set({
+            counterId: window.LineAlertFirebase.DEFAULT_COUNTER_ID,
+            counterName: window.LineAlertFirebase.DEFAULT_COUNTER_NAME,
+            currentToken: '---',
+            isActive: true,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        log('✅ Counter CANTEEN01 initialized in Firestore.', 'info');
+        window.notifier.showInAppToast('Counter initialized!', 'success');
+      } catch (err) {
+        log('❌ Failed to initialize counter: ' + err.message, 'error');
+      }
+    });
+
+    // Buttons: Notification Tests
+    document.getElementById('btnRequestPerm').addEventListener('click', async () => {
+      log('Requesting browser notification permission...', 'system');
+      const res = await window.notifier.requestPermission();
+      updatePermissionBadge();
+      log('Notification permission result: ' + res, res === 'granted' ? 'info' : 'warn');
+    });
+
+    document.getElementById('btnTestTurnChime').addEventListener('click', () => {
+      log('Playing approaching chime (Web Audio API)...', 'system');
+      window.notifier.playChimeTone('approaching');
+    });
+
+    document.getElementById('btnTestServingChime').addEventListener('click', () => {
+      log('Playing urgent serving fanfare (Web Audio API)...', 'system');
+      window.notifier.playChimeTone('serving');
+    });
+
+    document.getElementById('btnTestVibration').addEventListener('click', () => {
+      log('Triggering mobile vibration pattern...', 'system');
+      window.notifier.triggerVibration([200, 100, 200, 100, 300]);
+      window.notifier.showInAppToast('Vibration triggered (if device supports it)', 'info');
+    });
+
+    document.getElementById('btnTriggerApproachNotif').addEventListener('click', () => {
+      log('Triggering simulated approaching turn notification...', 'warn');
+      window.notifier.notifyTurnApproaching(2, 'A108');
+    });
+
+    document.getElementById('btnTriggerServingNotif').addEventListener('click', () => {
+      log('Triggering simulated "It is your turn" serving notification...', 'error');
+      window.notifier.notifyNowServing('A108', 'College Canteen');
+    });
+
+    // Real-time Firestore Listener
+    let unsubscribeQueue = null;
+    function setupRealtimeQueueListener() {
+      if (!window.LineAlertFirebase.db || !window.LineAlertFirebase.isConfigured) return;
+
+      log('Setting up real-time onSnapshot listener for queues...', 'system');
+      const db = window.LineAlertFirebase.db;
+      
+      unsubscribeQueue = db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
+        .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
+        .orderBy('createdAt', 'asc')
+        .onSnapshot((snapshot) => {
+          renderQueueTable(snapshot);
+        }, (error) => {
+          log('Realtime listener error: ' + error.message, 'error');
+        });
+    }
+
+    function renderQueueTable(snapshot) {
+      const tbody = document.getElementById('liveQueueBody');
+      const countBadge = document.getElementById('queueCountBadge');
+      
+      let waitingCount = 0;
+      let html = '';
+
+      const waitingItems = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.status === 'waiting' || data.status === 'serving') {
+          waitingItems.push({ id: doc.id, ...data });
+        }
+      });
+
+      countBadge.textContent = `${waitingItems.length} Active`;
+
+      if (waitingItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No active customers in queue.</td></tr>';
+        return;
+      }
+
+      waitingItems.forEach((item, index) => {
+        const isServing = item.status === 'serving';
+        const position = isServing ? 'Now Serving' : index; // 0 people ahead if first waiting
+        const statusBadge = isServing 
+          ? '<span class="badge bg-danger">Serving</span>' 
+          : '<span class="badge bg-warning text-dark">Waiting</span>';
+        
+        const timeStr = item.createdAt ? new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now';
+
+        html += `
+          <tr class="${isServing ? 'table-warning' : ''}">
+            <td class="fw-bold">${item.tokenId}</td>
+            <td>${item.customerName || 'Anonymous'}</td>
+            <td>${statusBadge}</td>
+            <td><strong>${position}</strong></td>
+            <td class="text-muted small">${timeStr}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+      log(`Real-time queue updated: ${waitingItems.length} active entries.`, 'system');
+    }
+
+    // Simulated Queue Actions
+    document.getElementById('btnSimAddCustomer').addEventListener('click', async () => {
+      if (!window.LineAlertFirebase.db) {
+        alert('Configure Firebase first in js/firebase-config.js');
+        return;
+      }
+      const name = document.getElementById('simCustomerName').value.trim() || 'Student';
+      try {
+        const db = window.LineAlertFirebase.db;
+        const randomNum = Math.floor(100 + Math.random() * 900);
+        const tokenId = 'A' + randomNum;
+
+        log(`Adding customer "${name}" with token ${tokenId}...`, 'system');
+        await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES).add({
+          tokenId: tokenId,
+          counterId: window.LineAlertFirebase.DEFAULT_COUNTER_ID,
+          customerName: name,
+          status: window.LineAlertFirebase.QUEUE_STATUS.WAITING,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        log(`✅ Customer ${name} (${tokenId}) joined queue.`, 'info');
+        window.notifier.showInAppToast(`Added ${name} (${tokenId}) to queue`, 'success');
+      } catch (err) {
+        log('❌ Failed to add customer: ' + err.message, 'error');
+      }
+    });
+
+    document.getElementById('btnSimCallNext').addEventListener('click', async () => {
+      if (!window.LineAlertFirebase.db) return;
+      try {
+        const db = window.LineAlertFirebase.db;
+        // Find next waiting customer
+        const snapshot = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
+          .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
+          .where('status', '==', window.LineAlertFirebase.QUEUE_STATUS.WAITING)
+          .orderBy('createdAt', 'asc')
+          .limit(1)
+          .get();
+
+        if (snapshot.empty) {
+          log('⚠️ No waiting customers in queue to call.', 'warn');
+          window.notifier.showInAppToast('No waiting customers in queue', 'warning');
+          return;
+        }
+
+        const nextDoc = snapshot.docs[0];
+        const nextData = nextDoc.data();
+
+        // Mark previously serving customer as completed (if any)
+        const currentServing = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
+          .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
+          .where('status', '==', window.LineAlertFirebase.QUEUE_STATUS.SERVING)
+          .get();
+        
+        const batch = db.batch();
+        currentServing.forEach(doc => {
+          batch.update(doc.ref, { status: window.LineAlertFirebase.QUEUE_STATUS.COMPLETED });
+        });
+
+        // Update next customer to SERVING
+        batch.update(nextDoc.ref, { 
+          status: window.LineAlertFirebase.QUEUE_STATUS.SERVING,
+          servedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update counter document
+        const counterRef = db.collection(window.LineAlertFirebase.COLLECTIONS.COUNTERS).doc(window.LineAlertFirebase.DEFAULT_COUNTER_ID);
+        batch.update(counterRef, {
+          currentToken: nextData.tokenId,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await batch.commit();
+        log(`📢 Now Calling Next: Token ${nextData.tokenId} (${nextData.customerName})`, 'info');
+        window.notifier.showInAppToast(`Now calling Token ${nextData.tokenId}!`, 'success');
+      } catch (err) {
+        log('❌ Failed to call next: ' + err.message, 'error');
+      }
+    });
+
+    document.getElementById('btnSimCompleteCurrent').addEventListener('click', async () => {
+      if (!window.LineAlertFirebase.db) return;
+      try {
+        const db = window.LineAlertFirebase.db;
+        const serving = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
+          .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
+          .where('status', '==', window.LineAlertFirebase.QUEUE_STATUS.SERVING)
+          .get();
+
+        if (serving.empty) {
+          log('⚠️ No customer is currently being served.', 'warn');
+          return;
+        }
+
+        serving.forEach(async (doc) => {
+          await doc.ref.update({ 
+            status: window.LineAlertFirebase.QUEUE_STATUS.COMPLETED,
+            completedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          log(`✅ Token ${doc.data().tokenId} marked as Completed.`, 'info');
+        });
+      } catch (err) {
+        log('❌ Failed to complete customer: ' + err.message, 'error');
+      }
+    });
+
+    document.getElementById('btnSimSkipCurrent').addEventListener('click', async () => {
+      if (!window.LineAlertFirebase.db) return;
+      try {
+        const db = window.LineAlertFirebase.db;
+        const serving = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
+          .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
+          .where('status', '==', window.LineAlertFirebase.QUEUE_STATUS.SERVING)
+          .get();
+
+        if (serving.empty) {
+          log('⚠️ No customer is currently being served to skip.', 'warn');
+          return;
+        }
+
+        serving.forEach(async (doc) => {
+          await doc.ref.update({ 
+            status: window.LineAlertFirebase.QUEUE_STATUS.SKIPPED 
+          });
+          log(`⏭️ Token ${doc.data().tokenId} Skipped.`, 'warn');
+        });
+      } catch (err) {
+        log('❌ Failed to skip customer: ' + err.message, 'error');
+      }
+    });
+
+    document.getElementById('btnSimResetQueue').addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to delete all queue items for CANTEEN01?')) return;
+      if (!window.LineAlertFirebase.db) return;
+      try {
+        const db = window.LineAlertFirebase.db;
+        log('Resetting queue data...', 'warn');
+        const snapshot = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
+          .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
+          .get();
+
+        const batch = db.batch();
+        snapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+
+        await db.collection(window.LineAlertFirebase.COLLECTIONS.COUNTERS).doc(window.LineAlertFirebase.DEFAULT_COUNTER_ID).update({
+          currentToken: '---'
+        });
+
+        log('🗑️ All queue entries deleted. Counter reset.', 'info');
+        window.notifier.showInAppToast('Queue reset successfully.', 'info');
+      } catch (err) {
+        log('❌ Failed to reset queue: ' + err.message, 'error');
+      }
+    });
+
+    document.getElementById('btnClearLogs').addEventListener('click', () => {
+      logBox.innerHTML = '';
+    });
+  </script>
+</body>
+</html>

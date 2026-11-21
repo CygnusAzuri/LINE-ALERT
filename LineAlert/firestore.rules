@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // LINE ALERT - Academic Project MVP Rules
+    // Allows read/write for counters and queues so any mobile customer can join
+    // and counter admin can update status without mandatory authentication.
+    
+    match /counters/{counterId} {
+      allow read, write: if true;
+    }
+    
+    match /queues/{queueId} {
+      allow read, write: if true;
+    }
+    
+    // Default fallback: reject all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

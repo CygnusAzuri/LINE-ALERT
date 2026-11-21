@@ -1,0 +1,203 @@
+/* LINE ALERT - Global Stylesheet
+ * Responsive Mobile Computing Web App
+ */
+
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary-color: #64748b;
+  --accent-color: #06b6d4;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+  --card-radius: 16px;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile Container Styling */
+.mobile-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 768px) {
+  body {
+    background: var(--bg-gradient);
+  }
+  .mobile-wrapper {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    min-height: calc(100vh - 4rem);
+    border-radius: 24px;
+    overflow: hidden;
+  }
+}
+
+/* Brand Banner */
+.brand-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: #ffffff;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  position: relative;
+}
+
+.brand-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.brand-tagline {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+/* Big Display Cards */
+.status-card {
+  border-radius: var(--card-radius);
+  border: none;
+  background: #ffffff;
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.token-badge {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  letter-spacing: 1px;
+  line-height: 1;
+  margin: 0.5rem 0;
+}
+
+.position-display {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+  margin: 0.75rem 0;
+}
+
+.position-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Status Pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-waiting {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-serving {
+  background-color: #dcfce7;
+  color: #166534;
+  animation: pulse 1.5s infinite;
+}
+
+.status-alert {
+  background-color: #fee2e2;
+  color: #991b1b;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+/* Admin Dashboard Specifics */
+.admin-counter-display {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border-radius: var(--card-radius);
+  padding: 2rem;
+  text-align: center;
+}
+
+.admin-current-token {
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: #38bdf8;
+  line-height: 1;
+  margin: 0.5rem 0;
+}
+
+/* Quick Action Buttons */
+.btn-action {
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* QR Code Box */
+.qr-preview-box {
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Notification Banner */
+.notification-permission-prompt {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
