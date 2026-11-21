@@ -149,18 +149,24 @@ const LineAlertQueue = {
 
     const targetCounterId = counterId || window.LineAlertFirebase.DEFAULT_COUNTER_ID;
 
-    // Fetch all active (waiting + serving) entries ordered by join time
+    // Fetch all active (waiting + serving) entries without composite index requirement
     const snapshot = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
       .where('counterId', '==', targetCounterId)
       .where('status', 'in', [
         window.LineAlertFirebase.QUEUE_STATUS.WAITING,
         window.LineAlertFirebase.QUEUE_STATUS.SERVING
       ])
-      .orderBy('createdAt', 'asc')
       .get();
 
     const activeItems = [];
     snapshot.forEach(doc => activeItems.push({ id: doc.id, ...doc.data() }));
+
+    // In-memory sort by createdAt (oldest first, zero index needed)
+    activeItems.sort((a, b) => {
+      const tA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (new Date(a.createdAt).getTime() || 0));
+      const tB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (new Date(b.createdAt).getTime() || 0));
+      return tA - tB;
+    });
 
     // Find the customer's document
     const customerItem = activeItems.find(item => item.tokenId === tokenId);
@@ -240,12 +246,10 @@ const LineAlertQueue = {
 
     const targetCounterId = counterId || window.LineAlertFirebase.DEFAULT_COUNTER_ID;
 
-    // Find the oldest waiting customer
+    // Find all waiting customers (in-memory sort avoids composite index requirement)
     const waitingSnapshot = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
       .where('counterId', '==', targetCounterId)
       .where('status', '==', window.LineAlertFirebase.QUEUE_STATUS.WAITING)
-      .orderBy('createdAt', 'asc')
-      .limit(1)
       .get();
 
     if (waitingSnapshot.empty) {
@@ -253,8 +257,18 @@ const LineAlertQueue = {
       return null;
     }
 
-    const nextDoc  = waitingSnapshot.docs[0];
-    const nextData = nextDoc.data();
+    const waitingDocs = [];
+    waitingSnapshot.forEach(doc => waitingDocs.push({ docRef: doc.ref, id: doc.id, data: doc.data() }));
+
+    // In-memory sort by createdAt ascending (oldest customer first)
+    waitingDocs.sort((a, b) => {
+      const tA = a.data.createdAt?.toMillis ? a.data.createdAt.toMillis() : (a.data.createdAt?.seconds ? a.data.createdAt.seconds * 1000 : (new Date(a.data.createdAt).getTime() || 0));
+      const tB = b.data.createdAt?.toMillis ? b.data.createdAt.toMillis() : (b.data.createdAt?.seconds ? b.data.createdAt.seconds * 1000 : (new Date(b.data.createdAt).getTime() || 0));
+      return tA - tB;
+    });
+
+    const nextDoc  = waitingDocs[0].docRef;
+    const nextData = waitingDocs[0].data;
 
     // Find any currently serving customer(s) to complete them first
     const currentServingSnapshot = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
@@ -467,7 +481,6 @@ const LineAlertQueue = {
 
     return db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
       .where('counterId', '==', targetCounterId)
-      .orderBy('createdAt', 'asc')
       .onSnapshot(snapshot => {
         const items = [];
         snapshot.forEach(doc => {
@@ -480,6 +493,14 @@ const LineAlertQueue = {
             items.push({ id: doc.id, ...data });
           }
         });
+
+        // In-memory sort by createdAt ascending (zero Firestore index required!)
+        items.sort((a, b) => {
+          const tA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (new Date(a.createdAt).getTime() || 0));
+          const tB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (new Date(b.createdAt).getTime() || 0));
+          return tA - tB;
+        });
+
         onUpdateCallback(items);
       }, err => {
         console.error('[LineAlertQueue] Active queue subscription error:', err);

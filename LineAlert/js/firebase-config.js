@@ -13,6 +13,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyAWRtE__WyrOpm_uNXxKPPnGK96TzJXcIY",
   authDomain: "line-alert-canteen.firebaseapp.com",
+  databaseURL: "https://line-alert-canteen-default-rtdb.firebaseio.com",
   projectId: "line-alert-canteen",
   storageBucket: "line-alert-canteen.firebasestorage.app",
   messagingSenderId: "207568694762",

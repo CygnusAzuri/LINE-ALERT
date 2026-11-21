@@ -313,7 +313,6 @@
       
       unsubscribeQueue = db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
         .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
-        .orderBy('createdAt', 'asc')
         .onSnapshot((snapshot) => {
           renderQueueTable(snapshot);
         }, (error) => {
@@ -334,6 +333,13 @@
         if (data.status === 'waiting' || data.status === 'serving') {
           waitingItems.push({ id: doc.id, ...data });
         }
+      });
+
+      // In-memory sort by createdAt ascending (no index required)
+      waitingItems.sort((a, b) => {
+        const tA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (new Date(a.createdAt).getTime() || 0));
+        const tB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (new Date(b.createdAt).getTime() || 0));
+        return tA - tB;
       });
 
       countBadge.textContent = `${waitingItems.length} Active`;
@@ -398,12 +404,10 @@
       if (!window.LineAlertFirebase.db) return;
       try {
         const db = window.LineAlertFirebase.db;
-        // Find next waiting customer
+        // Find next waiting customer (in-memory sort avoids composite index requirement)
         const snapshot = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
           .where('counterId', '==', window.LineAlertFirebase.DEFAULT_COUNTER_ID)
           .where('status', '==', window.LineAlertFirebase.QUEUE_STATUS.WAITING)
-          .orderBy('createdAt', 'asc')
-          .limit(1)
           .get();
 
         if (snapshot.empty) {
@@ -412,8 +416,17 @@
           return;
         }
 
-        const nextDoc = snapshot.docs[0];
-        const nextData = nextDoc.data();
+        const waitingDocs = [];
+        snapshot.forEach(doc => waitingDocs.push({ docRef: doc.ref, data: doc.data() }));
+
+        waitingDocs.sort((a, b) => {
+          const tA = a.data.createdAt?.toMillis ? a.data.createdAt.toMillis() : (a.data.createdAt?.seconds ? a.data.createdAt.seconds * 1000 : (new Date(a.data.createdAt).getTime() || 0));
+          const tB = b.data.createdAt?.toMillis ? b.data.createdAt.toMillis() : (b.data.createdAt?.seconds ? b.data.createdAt.seconds * 1000 : (new Date(b.data.createdAt).getTime() || 0));
+          return tA - tB;
+        });
+
+        const nextDoc = waitingDocs[0].docRef;
+        const nextData = waitingDocs[0].data;
 
         // Mark previously serving customer as completed (if any)
         const currentServing = await db.collection(window.LineAlertFirebase.COLLECTIONS.QUEUES)
