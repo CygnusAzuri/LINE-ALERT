@@ -1,0 +1,108 @@
+
+/* General Styling */
+body {
+    background-color: #f4f7fb;
+    font-family: Arial, sans-serif;
+    color: #263238;
+}
+
+/* Navigation */
+.navbar {
+    background-color: #172554;
+}
+
+.navbar-brand {
+    letter-spacing: 1px;
+}
+
+/* Main Card */
+.queue-card {
+    background-color: #ffffff;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* Queue Icon */
+.queue-icon {
+    font-size: 45px;
+}
+
+/* Counter Information */
+.counter-info {
+    background-color: #eff6ff;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.counter-info h5 {
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* Status Indicator */
+.status-indicator {
+    font-size: 13px;
+    color: #475569;
+}
+
+.status-dot {
+    display: inline-block;
+    height: 9px;
+    width: 9px;
+    background-color: #f59e0b;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+/* Form */
+.form-control {
+    padding: 12px;
+}
+
+.btn-primary {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+}
+
+/* Token Display */
+.token-number {
+    color: #2563eb;
+    font-size: 48px;
+    font-weight: bold;
+}
+
+/* Queue Status Boxes */
+.status-box {
+    background-color: #f1f5f9;
+    padding: 18px 10px;
+    border-radius: 10px;
+}
+
+.status-box h3 {
+    color: #1e40af;
+    font-weight: bold;
+}
+
+.status-box p {
+    margin-bottom: 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .queue-card {
+        padding: 22px;
+    }
+
+    .navbar-text {
+        font-size: 11px;
+    }
+}
